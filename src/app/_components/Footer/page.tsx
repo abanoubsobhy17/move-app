@@ -2,7 +2,7 @@ import { FaGithub, FaLinkedin } from 'react-icons/fa';
 
 export default function Footer() {
   return (
-    <footer className="bg-white text-yellow-700 hover:bg-amber-400 hover:text-black p-4 mt-8">
+    <footer className="bg-slate-800  hover:bg-slate-700 text-white p-4 mt-8">
       <div className="container mx-auto text-center">
         <p className="text-sm">&copy; {new Date().getFullYear()} Your Movie App. All rights reserved.</p>
         <div className="mt-2">

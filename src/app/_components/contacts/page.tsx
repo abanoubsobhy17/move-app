@@ -10,6 +10,7 @@ import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import Link from "next/link";
+import Image from "next/image"; // 🔹 استيراد Image من next/image
 
 export default function ContactsPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -22,7 +23,7 @@ export default function ContactsPage() {
     dispatch(fetchMoviesSlider());
   }, [dispatch]);
 
-  const filteredMovies = moviesHome.filter((movie) =>
+  const filteredMovies = moviesHome.filter((movie: { Title: string }) =>
     movie.Title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -51,12 +52,14 @@ export default function ContactsPage() {
           loop={true}
           className="max-w-4xl mx-auto"
         >
-          {moviesSlider?.map((movie) => (
+          {moviesSlider?.map((movie: { imdbID: string; Poster: string; Title: string }) => (
             <SwiperSlide key={movie.imdbID}>
               <div className="flex justify-center">
-                <img
+                <Image
                   src={movie.Poster}
                   alt={movie.Title}
+                  width={800}
+                  height={400}
                   className="w-full max-w-2xl h-[400px] object-cover rounded-lg shadow-lg"
                 />
               </div>
@@ -70,12 +73,14 @@ export default function ContactsPage() {
         <p className="text-center text-lg">Loading...</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-          {filteredMovies.map((movie) => (
+          {filteredMovies.map((movie: { imdbID: string; Poster: string; Title: string; Year: string }) => (
             <Link key={movie.imdbID} href={`/contacts/${movie.imdbID}`}>
               <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform">
-                <img
+                <Image
                   src={movie.Poster}
                   alt={movie.Title}
+                  width={200}
+                  height={300}
                   className="w-full h-64 object-cover"
                 />
                 <div className="p-4">

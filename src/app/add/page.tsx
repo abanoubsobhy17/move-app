@@ -28,8 +28,7 @@ export default function AddReview() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       console.log({ rating, comment, file });
       setSuccess(true);
-    } catch (err) {
-      setError('An error occurred while submitting your review.');
+ 
     } finally {
       setIsSubmitting(false);
     }
@@ -42,7 +41,7 @@ export default function AddReview() {
   };
 
   return (
-    <div className="p-8 bg-gray-900 text-white min-h-screen">
+    <div className="p-8 mybg text-white min-h-screen">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Add Your Review</h1>
         {error && <p className="text-red-500 mb-4">{error}</p>}

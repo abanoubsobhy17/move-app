@@ -1,12 +1,12 @@
 "use client";
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
 import { Provider } from "react-redux";
 import { store } from "@/ib/store";
-import Navbar from "./_components/Navbar/Nav";
+import Navbar from "@/app/_components/Navbar/Nav";
 import { Toaster } from "sonner";
-import Footer from "./_components/Footer/page";
+import Footer from "@/app/_components/Footer/page";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,12 +18,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-900 text-white`}>
@@ -31,7 +28,7 @@ export default function RootLayout({
           <Navbar /> {/* ✅ إضافة الناف بار */}
           <Toaster richColors />
           <main className="pt-16">{children}</main>
-          <Footer/>
+          <Footer />
         </Provider>
       </body>
     </html>

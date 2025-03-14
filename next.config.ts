@@ -1,12 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "image.tmdb.org",
-      },
-    ],
+    domains: ['image.tmdb.org', 'm.media-amazon.com'], // 🔹 أضف m.media-amazon.com هنا
   },
 };
 

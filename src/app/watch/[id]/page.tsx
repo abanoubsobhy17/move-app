@@ -9,13 +9,30 @@ import Slider from "react-slick";
 const omdbApiKey = "f5791838";
 const tmdbApiKey = "23f3fdd105596ab21d5e2338a34a7029";
 
+interface Movie {
+  Title: string;
+  Year: string;
+  imdbID: string;
+}
+
+interface CastMember {
+  id: number;
+  name: string;
+  character: string;
+  profile_path: string;
+}
+
+interface MovieImage {
+  file_path: string;
+}
+
 export default function WatchMoviePage() {
-  const { id } = useParams();
-  const [movie, setMovie] = useState<any>(null);
+  const { id } = useParams<{ id: string }>();
+  const [movie, setMovie] = useState<Movie | null>(null);
   const [loading, setLoading] = useState(true);
   const [trailerUrl, setTrailerUrl] = useState<string | null>(null);
-  const [cast, setCast] = useState<any[]>([]);
-  const [images, setImages] = useState<any[]>([]);
+  const [cast, setCast] = useState<CastMember[]>([]);
+  const [images, setImages] = useState<MovieImage[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -42,6 +59,30 @@ export default function WatchMoviePage() {
     fetchMovie();
   }, [id]);
 
+  const fetchMovieCast = async (imdbID: string) => {
+    try {
+      const tmdbRes = await fetch(
+        `https://api.themoviedb.org/3/movie/${imdbID}/credits?api_key=${tmdbApiKey}`
+      );
+      const tmdbData = await tmdbRes.json();
+      setCast(tmdbData.cast);
+    } catch (error) {
+      console.error("Error fetching cast", error);
+    }
+  };
+
+  const fetchMovieImages = async (imdbID: string) => {
+    try {
+      const tmdbRes = await fetch(
+        `https://api.themoviedb.org/3/movie/${imdbID}/images?api_key=${tmdbApiKey}`
+      );
+      const tmdbData = await tmdbRes.json();
+      setImages(tmdbData.backdrops);
+    } catch (error) {
+      console.error("Error fetching images", error);
+    }
+  };
+
   const fetchMovieTrailer = async (imdbID: string) => {
     try {
       const tmdbRes = await fetch(
@@ -57,7 +98,7 @@ export default function WatchMoviePage() {
       );
       const videosData = await videosRes.json();
 
-      const trailer = videosData.results.find((vid: any) => vid.type === "Trailer");
+      const trailer = videosData.results.find((vid: { type: string }) => vid.type === "Trailer");
 
       if (trailer) {
         setTrailerUrl(`https://www.youtube.com/embed/${trailer.key}`);
@@ -67,64 +108,14 @@ export default function WatchMoviePage() {
     }
   };
 
-  const fetchMovieCast = async (imdbID: string) => {
-    try {
-      const tmdbRes = await fetch(
-        `https://api.themoviedb.org/3/find/${imdbID}?api_key=${tmdbApiKey}&external_source=imdb_id`
-      );
-      const tmdbData = await tmdbRes.json();
-      const tmdbMovieId = tmdbData.movie_results[0]?.id;
-      if (!tmdbMovieId) return;
-
-      const castRes = await fetch(
-        `https://api.themoviedb.org/3/movie/${tmdbMovieId}/credits?api_key=${tmdbApiKey}`
-      );
-      const castData = await castRes.json();
-      setCast(castData.cast.slice(0, 10));
-    } catch (error) {
-      console.error("Error fetching cast", error);
-    }
-  };
-
-  const fetchMovieImages = async (imdbID: string) => {
-    try {
-      const tmdbRes = await fetch(
-        `https://api.themoviedb.org/3/find/${imdbID}?api_key=${tmdbApiKey}&external_source=imdb_id`
-      );
-      const tmdbData = await tmdbRes.json();
-      const tmdbMovieId = tmdbData.movie_results[0]?.id;
-      if (!tmdbMovieId) return;
-
-      const imagesRes = await fetch(
-        `https://api.themoviedb.org/3/movie/${tmdbMovieId}/images?api_key=${tmdbApiKey}`
-      );
-      const imagesData = await imagesRes.json();
-      setImages(imagesData.backdrops.slice(0, 5));
-    } catch (error) {
-      console.error("Error fetching images", error);
-    }
-  };
-
   if (loading) {
     return <p className="text-center text-gray-500 text-lg font-semibold">Loading...</p>;
   }
 
-  const sliderSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    arrows: false,
-  };
-
   return (
     <div className="container mx-auto p-4 bg-gray-900 rounded-lg shadow-lg text-white">
       <h1 className="text-2xl font-bold mb-4">{movie?.Title} ({movie?.Year})</h1>
-      
-      <Slider {...sliderSettings} className="mb-6">
+      <Slider className="mb-6">
         {images.map((img, index) => (
           <Image
             key={index}
@@ -136,7 +127,6 @@ export default function WatchMoviePage() {
           />
         ))}
       </Slider>
-
       {trailerUrl ? (
         <div className="flex justify-center mb-8">
           <iframe
@@ -152,8 +142,6 @@ export default function WatchMoviePage() {
       ) : (
         <p className="text-center text-red-500">No trailer available</p>
       )}
-
-      
       <h2 className="text-xl font-semibold mt-8 mb-4">Cast & Crew</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {cast.map((actor) => (

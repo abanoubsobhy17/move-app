@@ -11,7 +11,14 @@ import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import { addToWatchlist } from "@/ib/watchlistSlice";
+import Image from "next/image";
 
+interface Movie {
+  imdbID: string;
+  Title: string;
+  Year: string;
+  Poster: string;
+}
 
 export default function HomePage() {
   const { moviesSlider } = useSelector((state: RootState) => state.moviesSlider);
@@ -30,16 +37,13 @@ export default function HomePage() {
     dispatch(fetchMoviesSlider());
   }, [dispatch, searchTerm]);
 
-  const handleAddToWatchlist = (movie: any) => {
+  const handleAddToWatchlist = (movie: Movie) => {
     dispatch(addToWatchlist(movie));
 
-    // ✅ تحديث localStorage بعد إضافة الفيلم
     const storedWatchlist = localStorage.getItem("watchlist");
-    const watchlistMovies = storedWatchlist ? JSON.parse(storedWatchlist) : [];
+    const watchlistMovies: Movie[] = storedWatchlist ? JSON.parse(storedWatchlist) : [];
 
-    // ✅ تجنب التكرار
-    const exists = watchlistMovies.some((m: any) => m.imdbID === movie.imdbID);
-    if (!exists) {
+    if (!watchlistMovies.some((m) => m.imdbID === movie.imdbID)) {
       watchlistMovies.push(movie);
       localStorage.setItem("watchlist", JSON.stringify(watchlistMovies));
     }
@@ -48,20 +52,18 @@ export default function HomePage() {
     setTimeout(() => setShowToast(false), 2000);
   };
 
-  const filteredMovies = moviesHome.filter((movieHome) =>
+  const filteredMovies = moviesHome.filter((movieHome: Movie) =>
     movieHome.Title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6 py-20 relative">
-      {/* ✅ Toast Notification */}
       {showToast && (
         <div className="fixed bottom-10 left-5 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg transition-opacity animate-fadeIn">
           ✅ Added to Watchlist!
         </div>
       )}
 
-      {/* 🔹 Slider Section */}
       <div className="mb-10 bg-gray-900 p-4 rounded-lg">
         <h2 className="text-3xl font-bold text-center mb-4 text-white">Trending Movies</h2>
         <Swiper
@@ -73,12 +75,14 @@ export default function HomePage() {
           pagination={{ clickable: true }}
           className="max-w-4xl mx-auto"
         >
-          {moviesSlider?.map((movie) => (
+          {moviesSlider?.map((movie: Movie) => (
             <SwiperSlide key={movie.imdbID}>
               <div className="flex justify-center">
-                <img
+                <Image
                   src={movie.Poster}
                   alt={movie.Title}
+                  width={300}
+                  height={400}
                   className="w-full max-w-2xl h-[400px] object-cover rounded-lg shadow-lg"
                 />
               </div>
@@ -87,7 +91,6 @@ export default function HomePage() {
         </Swiper>
       </div>
 
-      {/* 🔍 شريط البحث */}
       <div className="flex justify-center mb-6">
         <input
           type="text"
@@ -104,33 +107,26 @@ export default function HomePage() {
         <p className="text-center text-lg">Loading...</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-          {filteredMovies.map((movieHome) => (
+          {filteredMovies.map((movieHome: Movie) => (
             <div key={movieHome.imdbID} className="bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform">
-              <Link href={`/MovieDetails/${movieHome.imdbID}`}>
-                <img
+              <Link href={`/moveDetails/${movieHome.imdbID}`}>
+                <Image
                   src={movieHome.Poster}
                   alt={movieHome.Title}
+                  width={200}
+                  height={300}
                   className="w-full h-64 object-cover"
                 />
               </Link>
               <div className="p-4">
                 <h2 className="text-lg font-semibold">{movieHome.Title}</h2>
                 <p className="text-gray-400">{movieHome.Year}</p>
-                <div className="flex justify-between">
-                  <button
-                    className="bg-yellow-500 text-black px-3 py-2 rounded mt-2 w-full mx-1 hover:bg-yellow-600"
-                    onClick={() =>
-                      handleAddToWatchlist({
-                        imdbID: movieHome.imdbID,
-                        Title: movieHome.Title,
-                        Year: movieHome.Year,
-                        Poster: movieHome.Poster,
-                      })
-                    }
-                  >
-                    Add to Watchlist
-                  </button>
-                </div>
+                <button
+                  className="bg-yellow-500 text-black px-3 py-2 rounded mt-2 w-full mx-1 hover:bg-yellow-600"
+                  onClick={() => handleAddToWatchlist(movieHome)}
+                >
+                  Add to Watchlist
+                </button>
               </div>
             </div>
           ))}

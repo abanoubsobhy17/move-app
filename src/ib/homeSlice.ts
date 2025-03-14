@@ -15,7 +15,7 @@ export const fetchMoviesHome = createAsyncThunk(
 
 const homeSlice = createSlice({
   name: "moviesHome",
-  initialState: { moviesHome: [], loading: false, error: null },
+  initialState: { moviesHome: [], loading: false, error: null as string | null },
   reducers: {},
   extraReducers: (builder) => {
     builder
